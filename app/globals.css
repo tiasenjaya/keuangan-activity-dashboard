@@ -1,0 +1,20 @@
+@config "../tailwind.config.ts";
+
+/* BARIS PERTAMA: muat Tailwind v4 */
+@import "tailwindcss";
+
+/* (opsional) variabel global */
+:root { --radius: 16px; }
+
+/* Komponen utilitas pakai @apply — ini harus muncul SETELAH import di atas */
+.container-card { @apply w-full bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-5; }
+.label          { @apply text-sm text-slate-600 dark:text-slate-300; }
+.input          { @apply w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2; }
+.btn            { @apply rounded-2xl px-4 py-2 font-medium text-white bg-sky-600 hover:bg-sky-700 active:bg-sky-800; }
+.btn-outline    { @apply rounded-2xl px-3 py-2 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800; }
+.h1             { @apply text-2xl font-semibold; }
+.h2             { @apply text-xl  font-semibold; }
+.table          { @apply w-full text-sm border-collapse; }
+.table th       { @apply text-left p-2 text-slate-600 dark:text-slate-300; }
+.table td       { @apply p-2 border-t border-slate-200 dark:border-slate-700; }
+.kpi            { @apply text-xl font-semibold; }

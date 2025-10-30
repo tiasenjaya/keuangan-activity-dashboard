@@ -1,0 +1,40 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  kind String   // 'INCOME' | 'EXPENSE' | 'BOTH'
+  tx   Transaction[]
+}
+
+model Transaction {
+  id            Int       @id @default(autoincrement())
+  date          DateTime
+  kind          String    // 'INCOME' | 'EXPENSE'
+  categoryId    Int?
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  type          String?
+  amount        Float
+  notes         String?
+  isTracked     Boolean   @default(false)
+  trackingLabel String?
+  createdAt     DateTime  @default(now())
+}
+
+model Activity {
+  id              Int      @id @default(autoincrement())
+  date            DateTime
+  title           String
+  description     String?
+  status          String   @default("TODO") // 'TODO' | 'IN_PROGRESS' | 'DONE'
+  durationMinutes Int?
+  tags            String?
+  createdAt       DateTime @default(now())
+}
