@@ -4,8 +4,11 @@ import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
 
-// ⬇️ Ubah signature: params jadi Promise, request pakai NextRequest
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+// PATCH /api/activities/[id]
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { id } = await params
   const body = await req.json().catch(() => ({} as any))
 
@@ -15,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (typeof body.status === 'string') data.status = body.status
   if (typeof body.durationMinutes === 'number') data.durationMinutes = body.durationMinutes
   if (typeof body.tags === 'string') data.tags = body.tags
-  if (typeof body.date === 'string' || body.date instanceof Date) data.date = new Date(body.date)
+  if (body.date) data.date = new Date(body.date)
 
   const updated = await prisma.activity.update({
     where: { id: Number(id) },
@@ -24,7 +27,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json(updated)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+// DELETE /api/activities/[id]
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { id } = await params
   await prisma.activity.delete({ where: { id: Number(id) } })
   return NextResponse.json({ ok: true })
