@@ -1,38 +1,50 @@
-// app/api/activities/[id]/route.ts
-import { NextResponse, NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
-
 export const runtime = 'nodejs'
 
-// PATCH /api/activities/[id]
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+
+// PATCH
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  req: Request,
+  ctx: { params: Promise<{ id: string }> }   // ⮜ params adalah Promise
 ) {
-  const { id } = await params
-  const body = await req.json().catch(() => ({} as any))
+  try {
+    const { id: idStr } = await ctx.params;   // ⮜ await dulu
+    const id = Number(idStr);
 
-  const data: any = {}
-  if (typeof body.title === 'string') data.title = body.title
-  if (typeof body.description === 'string') data.description = body.description
-  if (typeof body.status === 'string') data.status = body.status
-  if (typeof body.durationMinutes === 'number') data.durationMinutes = body.durationMinutes
-  if (typeof body.tags === 'string') data.tags = body.tags
-  if (body.date) data.date = new Date(body.date)
+    const raw = await req.text();
+    console.log('PATCH /api/categories/[id] -> id =', id);
+    console.log('RAW BODY =', raw);
 
-  const updated = await prisma.activity.update({
-    where: { id: Number(id) },
-    data,
-  })
-  return NextResponse.json(updated)
+    let body: any = {};
+    try { body = raw ? JSON.parse(raw) : {}; } catch { body = {}; }
+
+    const data: any = {};
+    if (typeof body.name === 'string' && body.name.trim() !== '') data.name = body.name.trim();
+    if (typeof body.type === 'string' && body.type.trim() !== '') data.kind = body.type as 'INCOME' | 'EXPENSE' | 'BOTH';
+    if (typeof body.kind === 'string' && body.kind.trim() !== '') data.kind = body.kind as 'INCOME' | 'EXPENSE' | 'BOTH';
+
+    if (!id || Object.keys(data).length === 0) {
+      return NextResponse.json({ error: 'id atau field update kosong' }, { status: 400 });
+    }
+
+    const updated = await prisma.category.update({ where: { id }, data });
+    return NextResponse.json(updated);
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
 }
-
-// DELETE /api/activities/[id]
 export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _req: Request,
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params
-  await prisma.activity.delete({ where: { id: Number(id) } })
-  return NextResponse.json({ ok: true })
+  try {
+    const { id: idStr } = await ctx.params;
+    const id = Number(idStr);
+    await prisma.category.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
 }
+
