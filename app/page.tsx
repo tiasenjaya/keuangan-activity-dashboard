@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic'   // hindari pre-render saat build
+export const revalidate = 0              // jangan cache di build
+
 import { prisma } from '@/lib/prisma'
 import { currencyIDR } from '@/lib/utils'
 async function getSummary(){
