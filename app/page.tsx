@@ -1,23 +1,32 @@
-export const dynamic = 'force-dynamic'   // hindari pre-render saat build
-export const revalidate = 0              // jangan cache di build
+'use client'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-import { prisma } from '@/lib/prisma'
+import useSWR from 'swr'
 import { currencyIDR } from '@/lib/utils'
-async function getSummary(){
-  const tx = await prisma.transaction.findMany()
-  const income = tx.filter(t=>t.kind==='INCOME').reduce((a,b)=>a+b.amount,0)
-  const expense = tx.filter(t=>t.kind==='EXPENSE').reduce((a,b)=>a+b.amount,0)
-  return { income, expense, saldo: income-expense }
-}
-export default async function Page(){
-  const s = await getSummary()
+
+const fetcher = (u: string) => fetch(u, { cache: 'no-store' }).then(r => r.json())
+
+export default function Page() {
+  const { data } = useSWR('/api/summary', fetcher, { revalidateOnFocus: false })
+  const s = data ?? { income: 0, expense: 0, saldo: 0 }
+
   return (
     <div className="space-y-6">
       <h1 className="h1">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="container-card"><div className="text-sm text-slate-500">Total Pemasukan</div><div className="kpi">{currencyIDR.format(s.income)}</div></div>
-        <div className="container-card"><div className="text-sm text-slate-500">Total Pengeluaran</div><div className="kpi">{currencyIDR.format(s.expense)}</div></div>
-        <div className="container-card"><div className="text-sm text-slate-500">Saldo</div><div className="kpi">{currencyIDR.format(s.saldo)}</div></div>
+        <div className="container-card">
+          <div className="text-sm">Total Pemasukan</div>
+          <div className="kpi">{currencyIDR.format(s.income)}</div>
+        </div>
+        <div className="container-card">
+          <div className="text-sm">Total Pengeluaran</div>
+          <div className="kpi">{currencyIDR.format(s.expense)}</div>
+        </div>
+        <div className="container-card">
+          <div className="text-sm">Saldo</div>
+          <div className="kpi">{currencyIDR.format(s.saldo)}</div>
+        </div>
       </div>
     </div>
   )
