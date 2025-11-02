@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "db:generate": "dotenv -e .env.local -- prisma generate",
     "db:migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
