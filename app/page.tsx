@@ -1,7 +1,4 @@
 'use client'
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 import useSWR from 'swr'
 
 const fetcher = (u: string) => fetch(u, { cache: 'no-store' }).then(r => r.json())
